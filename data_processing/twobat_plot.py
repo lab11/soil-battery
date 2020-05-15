@@ -17,7 +17,7 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 if not os.path.exists("soil_data.pkl"):
-    fnames = glob("data/twobatteries_2k/soil*.csv")
+    fnames = glob("data/soil*.csv")
     soil_data = None
 
     for fname in sorted(fnames, key=lambda x: int(x.split('.')[0].split('_')[-1])):
@@ -54,31 +54,32 @@ ax1.set_ylabel('Cell Voltage (V)')
 ax1.plot(mv.index, mv['voltage1'], color=volt_color1)
 ax1.plot(mv.index, mv['voltage2'], color=volt_color2)
 ax1.tick_params(axis='y', labelcolor=volt_color1)
-ax1.set_ylim(0, 1)
+ax1.set_ylim(0, 1.2)
 
 ax2 = ax1.twinx()
 ax2.set_ylabel('Harvesting Current (μA)')
 ax2.plot(mv.index, 1E6*mv['current1'], color=amp_color1)
 ax2.plot(mv.index, 1E6*mv['current2'], color=amp_color2)
 ax2.tick_params(axis='y', labelcolor=amp_color1)
-ax2.set_ylim(0,1000)
+ax2.set_ylim(0,1200)
 ax1.tick_params(axis='x', which='both', length=0)
 ax2.tick_params(axis='x', which='both', length=0)
 
 ax1.grid(True)
-ax1.legend(['dirt volts','water volts'], loc='upper left')
-ax2.legend(['dirt amps','water amps'], loc='upper right')
+ax1.legend(['$H_20$ volts','Mud volts'], loc='upper left')
+ax2.legend(['$H_2O$ amps','Mud amps'], loc='upper right')
 
 ax3.fmt_xdata = md.DateFormatter('%s')
 ax3.set_ylabel("Power (uW)")
 ax3.grid(True)
-ax3.set_ylim(0,200)
+ax3.set_ylim(0,300)
 ax3.plot(mv.index, 1E6*mv['power1'], color=volt_color1)
 ax3.plot(mv.index, 1E6*mv['power2'], color=volt_color2)
-ax3.legend(['dirt watts','water watts'], loc='lower left')
+ax3.legend(['$H_2O$ watts','Mud watts'], loc='lower left')
 
-plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=0.5)
+plt.tight_layout(pad=0.6, w_pad=0.5, h_pad=0.6)
 plt.subplots_adjust(hspace=0.15)
+plt.title("ZN-C battery in mud and $H_20$ (v2)")
 #plt.savefig('farm_experiment.pdf')
 plt.savefig('twobat.png', dpi=180)
 plt.close()
