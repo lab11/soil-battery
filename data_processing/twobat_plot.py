@@ -79,7 +79,7 @@ ax3.legend(['$H_2O$ watts','Mud watts'], loc='lower left')
 
 plt.tight_layout(pad=0.6, w_pad=0.5, h_pad=0.6)
 plt.subplots_adjust(hspace=0.15)
-plt.title("ZN-C battery in mud and $H_20$ (v2)")
+#plt.title("ZN-C battery in mud and $H_20$ (v2)")
 #plt.savefig('farm_experiment.pdf')
 plt.savefig('twobat.png', dpi=180)
 plt.close()
