@@ -17,7 +17,7 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 if not os.path.exists("soil_data.pkl"):
-    fnames = glob("data/soil*.csv")
+    fnames = glob("data/twobatteries_2k/*.csv")
     soil_data = None
 
     for fname in sorted(fnames, key=lambda x: int(x.split('.')[0].split('_')[-1])):
@@ -43,7 +43,7 @@ mv = soil_data.rolling(5*60).mean()
 
 plt.close()
 plt.xlabel("Time")
-fig, (ax1, ax3) = plt.subplots(2,figsize=(8,3), sharex=True)
+fig, (ax1, ax3) = plt.subplots(2,figsize=(4,3), sharex=True)
 fig.autofmt_xdate()
 
 volt_color1= 'tab:blue'
@@ -66,7 +66,7 @@ ax1.tick_params(axis='x', which='both', length=0)
 ax2.tick_params(axis='x', which='both', length=0)
 
 ax1.grid(True)
-ax1.legend(['$H_20$ volts','Mud volts'], loc='upper left')
+ax1.legend(['$H_2O$ volts','Mud volts'], loc='upper left')
 ax2.legend(['$H_2O$ amps','Mud amps'], loc='upper right')
 
 ax3.fmt_xdata = md.DateFormatter('%s')
@@ -75,13 +75,13 @@ ax3.grid(True)
 ax3.set_ylim(0,300)
 ax3.plot(mv.index, 1E6*mv['power1'], color=volt_color1)
 ax3.plot(mv.index, 1E6*mv['power2'], color=volt_color2)
-ax3.legend(['$H_2O$ watts','Mud watts'], loc='lower left')
+ax3.legend(['$H_2O$','Mud'], loc='lower left')
 
 plt.tight_layout(pad=0.6, w_pad=0.5, h_pad=0.6)
 plt.subplots_adjust(hspace=0.15)
 #plt.title("ZN-C battery in mud and $H_20$ (v2)")
 #plt.savefig('farm_experiment.pdf')
-plt.savefig('twobat.png', dpi=180)
+plt.savefig('twobat.pdf')
 plt.close()
 tot_energy = np.trapz(soil_data['power1'])
 tot_energy = np.trapz(soil_data['power2'])
