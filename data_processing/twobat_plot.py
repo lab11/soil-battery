@@ -46,20 +46,30 @@ plt.xlabel("Time")
 fig, (ax1, ax3) = plt.subplots(2,figsize=(4,3), sharex=True)
 fig.autofmt_xdate()
 
+
+volt_color= 'tab:blue'
+
+amp_color = 'tab:red'
+
+
 volt_color1= 'tab:blue'
+volt_style1 = 'dashed'
 volt_color2= 'tab:green'
+volt_style2 = 'dotted'
 amp_color1 = 'tab:red'
+amp_style1='dashed'
 amp_color2 = 'tab:orange'
+amp_style2='dashdot'
 ax1.set_ylabel('Cell Voltage (V)')
-ax1.plot(mv.index, mv['voltage1'], color=volt_color1)
-ax1.plot(mv.index, mv['voltage2'], color=volt_color2)
+ax1.plot(mv.index, mv['voltage1'], color=volt_color1, ls=volt_style1)
+ax1.plot(mv.index, mv['voltage2'], color=volt_color2, ls=volt_style2)
 ax1.tick_params(axis='y', labelcolor=volt_color1)
 ax1.set_ylim(0, 1.2)
 
 ax2 = ax1.twinx()
 ax2.set_ylabel('Harvesting Current (μA)')
-ax2.plot(mv.index, 1E6*mv['current1'], color=amp_color1)
-ax2.plot(mv.index, 1E6*mv['current2'], color=amp_color2)
+ax2.plot(mv.index, 1E6*mv['current1'], color=amp_color1, ls=amp_style1)
+ax2.plot(mv.index, 1E6*mv['current2'], color=amp_color2, ls=amp_style2)
 ax2.tick_params(axis='y', labelcolor=amp_color1)
 ax2.set_ylim(0,1200)
 ax1.tick_params(axis='x', which='both', length=0)
@@ -73,14 +83,12 @@ ax3.fmt_xdata = md.DateFormatter('%s')
 ax3.set_ylabel("Power (uW)")
 ax3.grid(True)
 ax3.set_ylim(0,300)
-ax3.plot(mv.index, 1E6*mv['power1'], color=volt_color1)
-ax3.plot(mv.index, 1E6*mv['power2'], color=volt_color2)
-ax3.legend(['$H_2O$','Mud'], loc='lower left')
+ax3.plot(mv.index, 1E6*mv['power1'], color=volt_color1, ls = volt_style1)
+ax3.plot(mv.index, 1E6*mv['power2'], color=volt_color2, ls = volt_style2)
+ax3.legend(['$H_2O$','Mud'], loc='upper right')
 
 plt.tight_layout(pad=0.6, w_pad=0.5, h_pad=0.6)
 plt.subplots_adjust(hspace=0.15)
-#plt.title("ZN-C battery in mud and $H_20$ (v2)")
-#plt.savefig('farm_experiment.pdf')
 plt.savefig('twobat.pdf')
 plt.close()
 tot_energy = np.trapz(soil_data['power1'])

@@ -37,7 +37,6 @@ for d in directories:
                 soil_data = data
             else:
                 soil_data = pd.concat([soil_data, data])
-        #soil_data.to_pickle("soil_data.pkl");
     else:
         soil_data = pd.read_pickle("soil_data.pkl")
     #mv = soil_data.rolling(5*60).mean()
@@ -50,15 +49,17 @@ for d in directories:
     #fig.autofmt_xdate()
 
     volt_color= 'tab:blue'
+    volt_style = 'solid'
     amp_color = 'tab:red'
+    amp_style='dashed'
     ax1.set_ylabel('Cell Voltage (V)')
-    ax1.plot(avgdata.index, avgdata['mvoltage'], color=volt_color)
+    ax1.plot(avgdata.index, avgdata['mvoltage'], color=volt_color, ls=volt_style)
     ax1.tick_params(axis='y', labelcolor=volt_color)
     ax1.set_ylim(0, 1.1)
 
     ax2 = ax1.twinx()
     ax2.set_ylabel('Harvesting Current (μA)')
-    ax2.plot(avgdata.index, 1E6*avgdata['mcurrent'], color=amp_color)
+    ax2.plot(avgdata.index, 1E6*avgdata['mcurrent'], color=amp_color, ls=amp_style)
     ax2.tick_params(axis='y', labelcolor=amp_color)
     ax2.set_ylim(0,1100)
 
@@ -66,8 +67,9 @@ for d in directories:
     ax2.tick_params(axis='x', which='both', length=0)
 
     ax1.grid(True)
+    ax1.legend(['voltage'], loc='upper center')
+    ax2.legend(['current'], loc='lower right')
 
-    #ax3.fmt_xdata = md.DateFormatter('%s')
     ax3.set_ylabel("Power (uW)")
     ax3.grid(True)
     ax3.set_ylim(0, 270)
@@ -76,7 +78,6 @@ for d in directories:
 
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=0.5)
     plt.subplots_adjust(hspace=0.15)
-    #plt.savefig('farm_experiment.pdf')
     plt.savefig(d + '_impedance.pdf')
     plt.close()
     tot_energy = np.trapz(soil_data['power'])

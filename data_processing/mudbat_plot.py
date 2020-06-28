@@ -44,28 +44,32 @@ print(mudbat_data)
 
 mv = mudbat_data.rolling(5*60).mean()
 plt.xlabel("Time")
-fig, (ax1, ax3) = plt.subplots(2,figsize=(8,3), sharex=True)
+fig, (ax1, ax3) = plt.subplots(2,figsize=(4,3), sharex=True)
 fig.autofmt_xdate()
 
 ind = mv.index > start
 mv = mv[ind]
 
 volt_color= 'tab:blue'
+volt_style = 'solid'
 amp_color = 'tab:red'
+amp_style='dashed'
 ax1.set_ylabel('Cell Voltage (V)')
-ax1.plot(mv.index, mv['voltage'], color=volt_color)
+ax1.plot(mv.index, mv['voltage'], color=volt_color, ls=volt_style)
 ax1.tick_params(axis='y', labelcolor=volt_color)
 ax1.set_ylim(0, .05)
 
 ax2 = ax1.twinx()
 ax2.set_ylabel('Harvesting Current (μA)')
-ax2.plot(mv.index, -1E6*mv['current'], color=amp_color)
+ax2.plot(mv.index, -1E6*mv['current'], color=amp_color, ls=amp_style)
 ax2.tick_params(axis='y', labelcolor=amp_color)
 ax2.set_ylim(0,50)
 ax1.tick_params(axis='x', which='both', length=0)
 ax2.tick_params(axis='x', which='both', length=0)
 
 ax1.grid(True)
+ax1.legend(['voltage'], loc='upper left')
+ax2.legend(['current'], loc='lower right')
 
 ax3.fmt_xdata = md.DateFormatter('%d %h:%m')
 ax3.set_ylabel("Power (uW)")
