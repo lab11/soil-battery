@@ -7,6 +7,7 @@ mpl.rc('font', **font)
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.dates as md
+import datetime
 import numpy as np
 from pytz import timezone
 import pandas as pd
@@ -44,7 +45,7 @@ print(mudbat_data)
 
 mv = mudbat_data.rolling(5*60).mean()
 plt.xlabel("Time")
-fig, (ax1, ax3) = plt.subplots(2,figsize=(4,3), sharex=True)
+fig, (ax1, ax3) = plt.subplots(2,figsize=(4,2), sharex=True)
 fig.autofmt_xdate()
 
 ind = mv.index > start
@@ -68,13 +69,19 @@ ax1.tick_params(axis='x', which='both', length=0)
 ax2.tick_params(axis='x', which='both', length=0)
 
 ax1.grid(True)
-ax1.legend(['voltage'], loc='upper left')
-ax2.legend(['current'], loc='lower right')
+ax1.legend(['voltage'], loc='upper left' , prop={'size':6})
+ax2.legend(['current'], loc='lower right', prop={'size':6})
 
-ax3.fmt_xdata = md.DateFormatter('%d %h:%m')
+#ax3.fmt_xdata = md.DateFormatter('%d %h:%m')
+ax3.xaxis.set_major_formatter(md.DateFormatter('%m-%d'))
 ax3.set_ylabel("Power (uW)")
 ax3.grid(True)
 ax3.plot(mv.index, 1E6*mv['power'])
+ax3.tick_params(axis='x', labelsize=6, rotation=0)
+for label in ax3.get_xticklabels():
+    label.set_horizontalalignment('center')
+ax3.set_xlim(mv.index[0], datetime.date(2020,5,27))
+ax3.set_ylim(0,1)
 
 plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=0.5)
 plt.subplots_adjust(hspace=0.15)

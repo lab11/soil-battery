@@ -7,6 +7,7 @@ mpl.rc('font', **font)
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.dates as md
+import datetime
 import numpy as np
 from pytz import timezone
 import pandas as pd
@@ -39,11 +40,12 @@ if not os.path.exists("soil_data.pkl"):
 else:
     soil_data = pd.read_pickle("soil_data.pkl")
     print(soil_data)
+
 mv = soil_data.rolling(5*60).mean()
 
 plt.close()
 plt.xlabel("Time")
-fig, (ax1, ax3) = plt.subplots(2,figsize=(4,3), sharex=True)
+fig, (ax1, ax3) = plt.subplots(2,figsize=(4,2), sharex=True)
 fig.autofmt_xdate()
 
 
@@ -76,16 +78,21 @@ ax1.tick_params(axis='x', which='both', length=0)
 ax2.tick_params(axis='x', which='both', length=0)
 
 ax1.grid(True)
-ax1.legend(['$H_2O$ volts','Mud volts'], loc='upper left')
-ax2.legend(['$H_2O$ amps','Mud amps'], loc='upper right')
+ax1.legend(['$H_2O$ volts','Mud volts'], loc='upper left', prop={'size': 6})
+ax2.legend(['$H_2O$ amps','Mud amps'], loc='upper right' , prop={'size': 6})
 
-ax3.fmt_xdata = md.DateFormatter('%s')
+#ax3.fmt_xdata = md.DateFormatter('%m-%d')
+ax3.xaxis.set_major_formatter(md.DateFormatter('%m-%d'))
 ax3.set_ylabel("Power (uW)")
 ax3.grid(True)
 ax3.set_ylim(0,300)
 ax3.plot(mv.index, 1E6*mv['power1'], color=volt_color1, ls = volt_style1)
 ax3.plot(mv.index, 1E6*mv['power2'], color=volt_color2, ls = volt_style2)
-ax3.legend(['$H_2O$','Mud'], loc='upper right')
+ax3.legend(['$H_2O$','Mud'], loc='upper right', prop={'size': 6})
+ax3.tick_params(axis='x', labelsize=6, rotation=0)
+ax3.set_xlim(mv.index[0], datetime.date(2020,5,19))
+for label in ax3.get_xticklabels():
+    label.set_horizontalalignment('center')
 
 plt.tight_layout(pad=0.6, w_pad=0.5, h_pad=0.6)
 plt.subplots_adjust(hspace=0.15)
