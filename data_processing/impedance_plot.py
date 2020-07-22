@@ -44,7 +44,6 @@ for d in directories:
     print(avgdata)
 
     plt.close()
-    plt.xlabel("impedance (ohms)")
     fig, (ax1, ax3) = plt.subplots(2,figsize=(4,2), sharex=True)
     #fig.autofmt_xdate()
 
@@ -75,6 +74,7 @@ for d in directories:
     ax3.set_ylim(0, 270)
     ax3.plot(avgdata.index, 1E6*avgdata['mpower'])
     plt.xticks(np.arange(11), ['68', '100', '1k', '2k','3.3k','4.7k','6.8k','9.1k','15k','39k','82k'])
+    ax3.set_xlabel('Impedance (Ω)')
 
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=0.5)
     plt.subplots_adjust(hspace=0.15)
