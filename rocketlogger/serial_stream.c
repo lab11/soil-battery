@@ -8,14 +8,15 @@
 #include <errno.h>   /* Error number definitions */
 #include <termios.h> /* POSIX terminal control definitions */
 #include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 uint8_t inbuf[1];
 uint8_t outbuf[50];
 
 // TODOs:
-//  - daemonize this program
 //  - better format checking before fwrite (some lines in logfile end up f'd up occasionally)
-// PS: I have no idea what I'm doing wrt serial, but this seems to output what I expect?
+// PS: I have no idea what I'm doing!
 
 int main(int argc, char** argv){
     /* cli args parse */
@@ -24,7 +25,7 @@ int main(int argc, char** argv){
     int index;
     int c;
     opterr = 0;
-    while ((c = getopt (argc, argv, "lht:")) != -1) {
+    while ((c = getopt (argc, argv, "t:")) != -1) {
         switch (c) {
             case 't':
                 tty_path = optarg;
@@ -110,6 +111,8 @@ int main(int argc, char** argv){
     time_t now;
     char logstr[80];
     char filename[50];
+    pid_t process_id = 0;
+    pid_t sid = 0;
 
     /* keep reading until start of line */
     while (1)
@@ -125,6 +128,38 @@ int main(int argc, char** argv){
 	  printf("Synced\n");
 	  marker_state = 0;
 	  sprintf(filename,"TEROSoutput-%lu.csv",(unsigned long)time(&now));
+	  // Create child process
+	  process_id = fork();
+	  // Indication of fork() failure
+	  if (process_id < 0)
+	    {
+	      printf("fork failed!\n");
+	      // Return failure in exit status
+	      exit(1);
+	    }
+
+	  // PARENT PROCESS. Need to kill it.
+	  if (process_id > 0)
+	    {
+	      printf("process_id of child process %d \n", process_id);
+	      // return success in exit status
+	      exit(0);
+	    }
+
+	  //unmask the file mode
+	  umask(0);
+	  //set new session
+	  sid = setsid();
+	  if(sid < 0)
+	    {
+	      // Return failure
+	      exit(1);
+	    }
+
+	  close(STDIN_FILENO);
+	  close(STDOUT_FILENO);
+	  close(STDERR_FILENO);
+
 	  outfile = fopen(filename, "wb");
 	  //TEROS-12 OUTPUT FORMAT: samples(ADDR/RAW/TMP/EC): 0+1870.34+21.1+0
 	  char header[] = "timestamp,sensorID,raw_VWC,temp,EC\n";
@@ -132,8 +167,9 @@ int main(int argc, char** argv){
 	  break;
         }
     }
-    
-    int i = 0;
+
+
+    int first = 1; 
     while (1)
     {
       
@@ -146,10 +182,12 @@ int main(int argc, char** argv){
 	for (c = 0; c<sizeof(outbuf); c++)
 	  if (outbuf[c] == '+')
 	    outbuf[c] = ',';
-
-	sprintf(logstr,"%lu,%s",(unsigned long)time(&now), outbuf);
-	fwrite(logstr, sizeof(char), sizeof(logstr), outfile);
-	fflush(outfile);
+	// dirty rotten hack to skip writing first output, as it's always random characters for some reason
+	if (!first) 
+	  sprintf(logstr,"%lu,%s",(unsigned long)time(&now), outbuf);
+	  fwrite(logstr, sizeof(char), sizeof(logstr), outfile);
+	  fflush(outfile);
+	} else{ first = 0;}
 	//clear dem buffers
 	memset(outbuf, 0, sizeof(outbuf));
 	memset(logstr, 0, sizeof(logstr));

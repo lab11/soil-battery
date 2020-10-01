@@ -24,7 +24,6 @@ void loop() {
   uint8_t i;
  
   // take repeated samples
-  for (i = 0; i < NUMSAMPLES; i++) {
     samples = get_measurement();
     while (strlen(samples) < 5) {
       samples = get_measurement();  
@@ -32,7 +31,7 @@ void loop() {
     //Serial.print("samples(ADDR/RAW/TMP/EC): ");
     Serial.println(samples);
     //sdi_serial_connection.sdi_cmd("1A0!");// change address from 0 to 1
-  }
+  delay(10000); 
 }
  
 char* get_measurement(){
