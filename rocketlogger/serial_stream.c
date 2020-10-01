@@ -169,10 +169,9 @@ int main(int argc, char** argv){
     }
 
 
-    int first = 1; 
+    int first = 1;
     while (1)
     {
-      
       read(USB, inbuf, 1);
       if (inbuf[0] == '\n') {
 	outbuf[marker_state] = inbuf[0];
@@ -183,7 +182,7 @@ int main(int argc, char** argv){
 	  if (outbuf[c] == '+')
 	    outbuf[c] = ',';
 	// dirty rotten hack to skip writing first output, as it's always random characters for some reason
-	if (!first) 
+	if (!first) {
 	  sprintf(logstr,"%lu,%s",(unsigned long)time(&now), outbuf);
 	  fwrite(logstr, sizeof(char), sizeof(logstr), outfile);
 	  fflush(outfile);
@@ -202,6 +201,6 @@ int main(int argc, char** argv){
 	marker_state += 1;
       }
     }
-    fclose(outfile); 
+    fclose(outfile);
     return 0;
 }
