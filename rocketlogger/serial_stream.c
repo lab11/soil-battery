@@ -175,30 +175,29 @@ int main(int argc, char** argv){
       read(USB, inbuf, 1);
       if (inbuf[0] == '\n') {
 	outbuf[marker_state] = inbuf[0];
-	marker_state = 0;
-
 	// replace '+' w/ ',' for CSV
 	for (c = 0; c<sizeof(outbuf); c++)
 	  if (outbuf[c] == '+')
 	    outbuf[c] = ',';
 	// dirty rotten hack to skip writing first output, as it's always random characters for some reason
-	if (!first) {
-	  sprintf(logstr,"%lu,%s",(unsigned long)time(&now), outbuf);
-	  fwrite(logstr, sizeof(char), sizeof(logstr), outfile);
-	  fflush(outfile);
+	if (!first && marker_state > 0) {
+	    sprintf(logstr,"%lu,%s",(unsigned long)time(&now),outbuf);
+	    fwrite(logstr, sizeof(char), sizeof(logstr), outfile);
+	    fflush(outfile);
 	} else{ first = 0;}
 	//clear dem buffers
 	memset(outbuf, 0, sizeof(outbuf));
 	memset(logstr, 0, sizeof(logstr));
-	sleep(10);
+	marker_state = 0;
+	  sleep(1);
       }
       else if (marker_state > sizeof(outbuf)){ //oops, overflow
 	//printf("marker state %i\n", marker_state);
 	marker_state = 0;
 	memset(outbuf, 0, sizeof(outbuf));
       } else {
-	outbuf[marker_state] = inbuf[0];
-	marker_state += 1;
+	  outbuf[marker_state] = inbuf[0];
+	  marker_state += 1;
       }
     }
     fclose(outfile);
