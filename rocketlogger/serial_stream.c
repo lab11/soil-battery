@@ -13,6 +13,8 @@
 
 uint8_t inbuf[1];
 uint8_t outbuf[50];
+char *logpath = "/home/rocketlogger/soil_battery";
+char *pidpath = "/run/teroslogger.pid";
 
 // TODOs:
 //  - better format checking before fwrite (some lines in logfile end up f'd up occasionally)
@@ -107,10 +109,11 @@ int main(int argc, char** argv){
     }
 
     FILE* outfile;
+    FILE* pidfile;
     int marker_state = 0;
     time_t now;
     char logstr[80];
-    char filename[50];
+    char filename[100];
     pid_t process_id = 0;
     pid_t sid = 0;
 
@@ -127,7 +130,7 @@ int main(int argc, char** argv){
         if (marker_state == 1) {
 	  printf("Synced\n");
 	  marker_state = 0;
-	  sprintf(filename,"TEROSoutput-%lu.csv",(unsigned long)time(&now));
+	  sprintf(filename,"%s/TEROSoutput-%lu.csv",logpath,(unsigned long)time(&now));
 	  // Create child process
 	  process_id = fork();
 	  // Indication of fork() failure
@@ -141,7 +144,12 @@ int main(int argc, char** argv){
 	  // PARENT PROCESS. Need to kill it.
 	  if (process_id > 0)
 	    {
+	      // write PID to pid file so we can kill logging later
+	      pidfile = fopen(pidpath, "wb");
 	      printf("process_id of child process %d \n", process_id);
+	      fprintf(pidfile, "%d", process_id);
+	      fflush(pidfile);
+	      fclose(pidfile);
 	      // return success in exit status
 	      exit(0);
 	    }
