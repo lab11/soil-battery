@@ -120,7 +120,7 @@ int main(int argc, char** argv){
     } while (inbuf[0] != '\n');
     
     printf("Synced\n");
-    sprintf(filename, "%s/TEROSoutput-%lu.csv", logpath, (unsigned long)time());
+    sprintf(filename, "%s/TEROSoutput-%lu.csv", logpath, (unsigned long) time(NULL));
     // Create child process so we can kill the parent and do setsid() on the child
     // in order to free the controlling terminal
     process_id = fork();
@@ -165,6 +165,7 @@ int main(int argc, char** argv){
     int marker_state = 0;
     char logstr[80];
     //memset(outbuf, 0, sizeof(outbuf)); // ?? you never did this. maybe that's why first output is garbage?
+    memset(logstr, 0, sizeof(logstr));
     // do this forever??
     while (1) {
         read(USB, inbuf, sizeof inbuf); // read in a byte
@@ -173,7 +174,7 @@ int main(int argc, char** argv){
                 // if this wasn't an empty line, toss a null terminator to the output string,
                 // slap a time stamp on our measurement, and write that bad boi to file
                 outbuf[marker_state] = 0; // this should let us avoid having to memset outbuf every time
-                sprintf(logstr, "%lu,%s\n", (unsigned long)time(), outbuf);
+                sprintf(logstr, "%lu,%s\n", (unsigned long) time(NULL), outbuf);
                 fwrite(logstr, sizeof(char), sizeof(logstr), outfile); 
                 fflush(outfile);
                 
