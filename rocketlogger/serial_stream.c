@@ -51,12 +51,15 @@ int main(int argc, char** argv){
         exit(0);
     }
 
+    //unmask the file mode for shits and giggles
+    umask(0);
+
     int USB;
     if (tty_path) {
-        USB = open( tty_path, O_RDWR|O_NOCTTY|O_NONBLOCK ); // ?? maybe O_RDONLY would be better here
+        USB = open( tty_path, O_RDONLY|O_NOCTTY|O_NONBLOCK );
     }
     else {
-        USB = open( "/dev/ttyACM0", O_RDWR|O_NOCTTY|O_NONBLOCK ); // ?? same as above
+        USB = open( "/dev/ttyACM0", O_RDONLY|O_NOCTTY|O_NONBLOCK );
     }
     printf("USB = %d\n", USB);
 
@@ -66,12 +69,6 @@ int main(int argc, char** argv){
     }
     else{
         printf("serial port open good\n");
-    }
-
-    if (fcntl(USB, F_SETFL, 0) == -1) // is this line necessary? didn't you already open USB as nonblocking?
-    {
-        printf("can't set tty device non-blocking\n");
-        exit(1);
     }
 
     struct termios tty;
@@ -97,9 +94,8 @@ int main(int argc, char** argv){
     tty.c_cflag |= (CLOCAL | CREAD);// ignore modem controls,
     // enable reading
     tty.c_cflag &= ~(PARENB | PARODD);      // shut off parity
-    tty.c_cflag |= 0;						// ?? does this actually do anything?
-    tty.c_cflag &= ~CSTOPB;					// use only one stop bit
-    tty.c_cflag &= ~CRTSCTS;				// ?? not in POSIX... is this necessary?
+    tty.c_cflag &= ~CSTOPB;                 // use only one stop bit
+    tty.c_cflag &= ~CRTSCTS;                // ?? not in POSIX... is this necessary?
 
 
     /* Flush Port, then applies attributes */
@@ -134,7 +130,7 @@ int main(int argc, char** argv){
     // PARENT PROCESS. Need to kill it. 
     if (process_id > 0) {
         // write PID to pid file so we can kill logging later
-        pidfile = fopen(pidpath, "wb"); // ?? is there only one logging process per device?
+        pidfile = fopen(pidpath, "wb");
         printf("process_id of child process %d\n", process_id);
         fprintf(pidfile, "%d", process_id);
         fflush(pidfile);
@@ -143,8 +139,6 @@ int main(int argc, char** argv){
         exit(0);
     }
 
-    //unmask the file mode ?? why don't we do this earlier (e.g. line 53 before opening USB)?
-    umask(0);
     //set new session. this makes the child independent from the controlling terminal
     sid = setsid();
     if (sid < 0) {
@@ -164,9 +158,9 @@ int main(int argc, char** argv){
     // finally start reading and logging measurements
     int marker_state = 0;
     char logstr[80];
-    //memset(outbuf, 0, sizeof(outbuf)); // ?? you never did this. maybe that's why first output is garbage?
+    // clear the logstr to get rid of garbage
     memset(logstr, 0, sizeof(logstr));
-    // do this forever??
+    // start reading and logging bytes forever
     while (1) {
         read(USB, inbuf, sizeof inbuf); // read in a byte
         if (inbuf[0] == '\n') { // if we reached the end of a measurement
@@ -178,22 +172,20 @@ int main(int argc, char** argv){
                 fwrite(logstr, sizeof(char), sizeof(logstr), outfile); 
                 fflush(outfile);
                 
-                // then clear our buffers, reset our writing index, and wait a sec before reading again
-                // ?? instead of memsetting every time, let's just null terminate instead
-                //memset(outbuf, 0, sizeof(outbuf));
-                //memset(logstr, 0, sizeof(logstr));
+                // then reset our writing index and wait a sec before reading again
                 marker_state = 0;
                 sleep(1);
             }
         } else if (marker_state > sizeof(outbuf)){ //oops, overflow
-            //printf("marker state %i\n", marker_state);
-            // ?? should we reject the entire measurement and jump to the next newline? right now this just
-            // ?? truncates the measurement and returns the latter piece, which may be junk?
+            // just skip this trash if it overflows, so eat bytes until we reach the next newline
+            do {
+                read(USB, inbuf, sizeof inbuf);
+            } while (inbuf[0] != '\n');
+            // reset the marker to the beginning
             marker_state = 0;
-            //memset(outbuf, 0, sizeof(outbuf)); // this is unnecessary now that we are null terminating outbuf
         } else {
-            // we just write the new byte into our outbuf, replacing '+' with ',' for csv, and increment 
-            // the writing index
+            // we write the new byte into our outbuf, replacing '+' with ',' for csv,
+            // and increment the writing index
             if (inbuf[0] == '+') {
                 outbuf[marker_state] = ',';
             } else {
@@ -203,6 +195,8 @@ int main(int argc, char** argv){
         }
     }
     
-    fclose(outfile); // ?? is this ever run?
+    // this doesn't ever run, but for the sake of completion -- for the sole purpose of soothing
+    // our souls -- we will include the following two lines
+    fclose(outfile);
     return 0;
 }
