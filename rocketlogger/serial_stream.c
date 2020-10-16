@@ -56,10 +56,10 @@ int main(int argc, char** argv){
 
     int USB;
     if (tty_path) {
-        USB = open( tty_path, O_RDONLY|O_NOCTTY|O_NONBLOCK );
+        USB = open( tty_path, O_RDWR|O_NOCTTY|O_NONBLOCK );
     }
     else {
-        USB = open( "/dev/ttyACM0", O_RDONLY|O_NOCTTY|O_NONBLOCK );
+        USB = open( "/dev/ttyACM0", O_RDWR|O_NOCTTY|O_NONBLOCK );
     }
     printf("USB = %d\n", USB);
 
@@ -176,7 +176,7 @@ int main(int argc, char** argv){
                 marker_state = 0;
                 sleep(1);
             }
-        } else if (marker_state > sizeof(outbuf)){ //oops, overflow
+        } else if (marker_state >= sizeof outbuf){ //oops, overflow
             // just skip this trash if it overflows, so eat bytes until we reach the next newline
             do {
                 read(USB, inbuf, sizeof inbuf);
