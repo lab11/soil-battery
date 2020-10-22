@@ -1,0 +1,12 @@
+[Unit]
+Description=Start Soil Battery Measurements
+
+[Service]
+Type=oneshot
+ExecStart=/home/rocketlogger/soil_battery_start.sh
+RemainAfterExit=true
+ExecStop=/home/rocketlogger/soil_battery_stop.sh
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target
