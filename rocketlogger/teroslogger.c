@@ -26,16 +26,26 @@ int main(int argc, char** argv){
     char *tty_path = NULL;
     int index;
     int c;
+    int num = 0;
     opterr = 0;
-    while ((c = getopt (argc, argv, "t:")) != -1) {
+    while ((c = getopt (argc, argv, "n:t:")) != -1) {
         switch (c) {
             case 't':
                 tty_path = optarg;
                 break;
+	    case 'n':
+		if (sscanf (optarg, "%i", &num) != 1) {
+    			fprintf(stderr, "error - not an integer");
+			exit(1);
+		}
+		fprintf(stderr, "num=%i\n",num);
+		break;
             case '?':
                 if (optopt == 't')
                     fprintf (stderr, "Option -%c requires an argument.\n", optopt);
-                else if (isprint(optopt))
+                else if (optopt == 'n')
+		    fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+		else if (isprint(optopt))
                     fprintf (stderr, "Unknown option `-%c'.\n", optopt);
                 else
                     fprintf (stderr, "Unknown option character `\\x%x'.\n", optopt);
@@ -120,7 +130,7 @@ int main(int argc, char** argv){
     } while (inbuf[0] != '\n');
     
     printf("Synced\n");
-    sprintf(filename, "%s/TEROSoutput-%lu.csv", logpath, (unsigned long) time(NULL));
+    sprintf(filename, "%s/TEROSoutput-%lu-f%i.csv", logpath, (unsigned long) time(NULL), num);
     // Create child process so we can kill the parent and do setsid() on the child
     // in order to free the controlling terminal
     process_id = fork();
