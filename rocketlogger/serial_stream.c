@@ -13,8 +13,8 @@
 
 uint8_t inbuf[1];
 uint8_t outbuf[50];
-char *logpath = "/home/rocketlogger/soil_battery";
-char *pidpath = "/run/teroslogger.pid";
+char *logpath = "logs"; //"/home/rocketlogger/soil_battery";
+char *pidpath = "logs/stream.pid"; //"/run/teroslogger.pid";
 
 // TODOs:
 //  - better format checking before fwrite (some lines in logfile end up f'd up occasionally)
@@ -56,10 +56,10 @@ int main(int argc, char** argv){
 
     int USB;
     if (tty_path) {
-        USB = open( tty_path, O_RDWR|O_NOCTTY|O_NONBLOCK );
+        USB = open( tty_path, O_RDONLY|O_NOCTTY|O_NONBLOCK );
     }
     else {
-        USB = open( "/dev/ttyACM0", O_RDWR|O_NOCTTY|O_NONBLOCK );
+        USB = open( "/dev/ttys1", O_RDONLY|O_NOCTTY|O_NONBLOCK ); // "/dev/ttyACM0"
     }
     printf("USB = %d\n", USB);
 
@@ -69,6 +69,12 @@ int main(int argc, char** argv){
     }
     else{
         printf("serial port open good\n");
+    }
+
+    if (fcntl(USB, F_SETFL, 0) == -1) // apparently this is necessary
+    {
+        printf("can't set tty device non-blocking\n");
+        exit(1);
     }
 
     struct termios tty;
@@ -111,12 +117,14 @@ int main(int argc, char** argv){
     pid_t sid = 0;
 
     /* keep reading until start of line */
-    do {
-        read(USB, inbuf, sizeof inbuf);
-    } while (inbuf[0] != '\n');
+    //do {
+    //    read(USB, inbuf, sizeof inbuf);
+    //} while (inbuf[0] != '\n');
     
     printf("Synced\n");
     sprintf(filename, "%s/TEROSoutput-%lu.csv", logpath, (unsigned long) time(NULL));
+    
+    /* ignore the fork for now
     // Create child process so we can kill the parent and do setsid() on the child
     // in order to free the controlling terminal
     process_id = fork();
@@ -149,11 +157,21 @@ int main(int argc, char** argv){
     close(STDIN_FILENO);  // ?? why do we do this? does it improve performance? 
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
+    */
 
     outfile = fopen(filename, "wb");
     //TEROS-12 OUTPUT FORMAT: samples(ADDR/RAW/TMP/EC): 0+1870.34+21.1+0
     char header[] = "timestamp,sensorID,raw_VWC,temp,EC\n";
     fwrite(header, sizeof(char), sizeof(header), outfile); // write CSV header
+    fflush(outfile);
+
+    //printf("writing first\n");
+    //fflush(stdout);
+    //write(USB, "first\n", 6);
+    //printf("done writing\n");
+    //sleep(5);
+    //printf("done sleeping\n");
+    //fflush(stdout);
 
     // finally start reading and logging measurements
     int marker_state = 0;
@@ -163,6 +181,8 @@ int main(int argc, char** argv){
     // start reading and logging bytes forever
     while (1) {
         read(USB, inbuf, sizeof inbuf); // read in a byte
+        printf("read character '%c'", inbuf[0]);
+        fflush(stdout);
         if (inbuf[0] == '\n') { // if we reached the end of a measurement
             if (marker_state > 0) {
                 // if this wasn't an empty line, toss a null terminator to the output string,
@@ -175,6 +195,8 @@ int main(int argc, char** argv){
                 // then reset our writing index and wait a sec before reading again
                 marker_state = 0;
                 sleep(1);
+                //write(USB, "help\n", 5);
+                //sleep(5);
             }
         } else if (marker_state >= sizeof outbuf){ //oops, overflow
             // just skip this trash if it overflows, so eat bytes until we reach the next newline
