@@ -169,13 +169,13 @@ int main(int argc, char** argv){
     outfile = fopen(filename, "wb");
     //TEROS-12 OUTPUT FORMAT: samples(ADDR/RAW/TMP/EC): 0+1870.34+21.1+0
     char header[] = "timestamp,sensorID,raw_VWC,temp,EC\n";
-    fwrite(header, sizeof(char), sizeof(header), outfile); // write CSV header
+    fwrite(header, sizeof(char), strlen(header), outfile); // write CSV header
 
     // finally start reading and logging measurements
     int marker_state = 0;
     char logstr[80];
-    //memset(outbuf, 0, sizeof(outbuf)); // ?? you never did this. maybe that's why first output is garbage?
-    memset(logstr, 0, sizeof(logstr));
+    //memset(outbuf, 0, sizeof(outbuf));
+    //memset(logstr, 0, sizeof(logstr));
     // do this forever??
     while (1) {
         read(USB, inbuf, sizeof inbuf); // read in a byte
@@ -185,11 +185,10 @@ int main(int argc, char** argv){
                 // slap a time stamp on our measurement, and write that bad boi to file
                 outbuf[marker_state] = 0; // this should let us avoid having to memset outbuf every time
                 sprintf(logstr, "%lu,%s\n", (unsigned long) time(NULL), outbuf);
-                fwrite(logstr, sizeof(char), sizeof(logstr), outfile); 
+                fwrite(logstr, sizeof(char), strlen(logstr), outfile); 
                 fflush(outfile);
                 
                 // then clear our buffers, reset our writing index, and wait a sec before reading again
-                // ?? instead of memsetting every time, let's just null terminate instead
                 //memset(outbuf, 0, sizeof(outbuf));
                 //memset(logstr, 0, sizeof(logstr));
                 marker_state = 0;
