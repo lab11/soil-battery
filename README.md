@@ -4,7 +4,7 @@ Folder overview:
 
 ## 2019
 
-arhived code from Neal + Colleen's 2019 deployment
+archived code from Neal + Colleen's 2019 deployment
 
 ## arduino
 
