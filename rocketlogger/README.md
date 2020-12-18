@@ -13,8 +13,10 @@ NOTE: for regular operation, it is recommended to use the soil_battery service t
 
 ### soil_battery.service
 
-systemd service file, allows us to start power and TEROS logging upon boot. 
+systemd service file, allows us to start power and TEROS logging upon boot. Can start/stop service manually like so:
+
+`sudo systemctl <start|stop> soil_battery.service`
 
 ### soil_battery_start.sh and soil_battery_stop.sh
 
-these are the scripts that soil_battery.service hooks into. Currently specialized for rocketloggers, but would be easy to adapt for Shepherd.
+These are the scripts that soil_battery.service hooks into. Because of permissions, they should generally not be run manually, but instead invoked through systemctl (see above).
