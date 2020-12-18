@@ -3,7 +3,7 @@
 Daemon to collect TEROS measurements from Arduino and log them to a file. 
 
 Build instructions:
-1.) gcc serial_stream.c -o teroslogger #compile...should probably just change name to teroslogger.c instead of renaming it
+1.) gcc teroslogger.c -o teroslogger #compile...should probably just change name to teroslogger.c instead of renaming it
 2.) mv teroslogger /bin #move executable to bin
 3.) chown/chrgp root teroslogger #make root the owner
 4.) chmod u+s /bin/teroslogger #set suid bit to make the daemon runnable
