@@ -19,3 +19,4 @@ tramp
 /matlab/data/*
 data_processing/data/teros
 
+data_processing/data_viz_demo/webapp/venv/

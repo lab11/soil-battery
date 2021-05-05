@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Soil Power Data Viz</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <link rel="shortcut icon" href="{{
+            url_for('static', filename='favicon.ico') }}"/>
+    <link rel="stylesheet" href="{{
+            url_for('static', filename='styles.css') }}">
+</head>
+<body onload="render_chart()">
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/data.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://code.highcharts.com/modules/boost.js"></script>
+
+<script type=text/javascript src="{{
+        url_for('static', filename='script.js') }}"></script>
+
+<div id="top"><span id="title">Soil Power Data Visualizer</span></div>
+<div>
+    <input id="fetch-button" type="button" value="Fetch Data">
+    <input id="refresh-button" type="button" value="Refresh Available Data">
+</div>
+
+<div id="grid-container">
+    <div id="config-panel">
+        <div><label for="datasets">Dataset: </label><select id="datasets">
+            {{ dataset_dropdown | safe }}
+        </select></div>
+        <input id="refresh-button" type="button" onclick="refreshClicked()" value="Render Chart">
+        <div>
+            <div>Sensors:</div>
+            <div id="sensor-checkboxes">{{ sensor_id_checkboxes | safe }}</div>
+        </div>
+        <div id="series-checkboxes">Series: {{ series_name_checkboxes | safe }}</div>
+    </div>
+
+    <figure class="highcharts-figure">
+        <div id="container"></div>
+        <p class="highcharts-description">
+            Click and drag in the chart to zoom in
+            and inspect the data.
+        </p>
+    </figure>
+
+</div>
+
+</body>
+</html>

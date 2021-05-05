@@ -1,0 +1,144 @@
+body {
+    font-family: "Raleway", sans-serif;
+}
+
+#top{
+    background-color: #006046;
+    padding-top: 10px;
+    padding-bottom: 0px;
+    width: 100%;
+    text-align: center;
+}
+
+#title{
+    font-size: 60px;
+    font-weight: bolder;
+    color: white;
+    display: inline-block;
+    padding: 10px 0;
+}
+
+
+#config-panel {
+    grid-area: config-panel;
+    box-shadow: 0px 7px 7px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    align-items: center;
+    height: auto;
+    width: auto;
+    font-size: 18px;
+}
+
+#sensor-checkboxes {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    height: auto;
+    width: auto;
+}
+
+#series-checkboxes {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: left;
+    align-items: start;
+    height: auto;
+    width: auto;
+}
+
+#series-checkboxes > div {
+    margin: 5px;
+}
+
+
+/*Checkbox formatting*/
+input[type=checkbox] {
+    display: none;
+}
+
+input[type=checkbox] + label {
+    color: black;
+    background-color: #ececec;
+    border: 1px solid #000000;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px -15px 10px -12px rgba(0,0,0,0.05);
+    padding: 9px;
+    border-radius: 3px;
+    display: inline-block;
+    position: relative;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+
+}
+
+input[type=checkbox]:checked + label{
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px 1px 3px rgba(0,0,0,0.1);
+    color: white;
+}
+
+input[type=checkbox]:checked + label {
+    background-color: #3b8500;
+    border: 1px solid #adb8c0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px -15px 10px -12px rgba(0,0,0,0.05), inset 15px 10px -12px rgba(255,255,255,0.1);
+}
+
+
+select {
+    font-size: 18px
+}
+
+
+/*Highcharts*/
+.highcharts-figure, .highcharts-data-table table {
+    width: 100%;
+    margin: 1em auto;
+}
+
+.highcharts-data-table table {
+    font-family: Verdana, sans-serif;
+    border-collapse: collapse;
+    border: 1px solid #EBEBEB;
+    margin: 10px auto;
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+}
+.highcharts-data-table caption {
+    padding: 1em 0;
+    font-size: 1.2em;
+    color: #555;
+}
+.highcharts-data-table th {
+    font-weight: 600;
+    padding: 0.5em;
+}
+.highcharts-data-table td, .highcharts-data-table th, .highcharts-data-table caption {
+    padding: 0.5em;
+}
+.highcharts-data-table thead tr, .highcharts-data-table tr:nth-child(even) {
+    background: #f8f8f8;
+}
+.highcharts-data-table tr:hover {
+    background: #f1f7ff;
+}
+
+#grid-container {
+    display: grid;
+    grid-template-columns: 20px 20% 60% auto;
+    grid-template-areas:
+        ". config-panel chart .";
+    width: 100vw;
+    gap: 20px;
+    height: auto;
+}
+
+.highcharts-figure {
+    grid-area: chart;
+}
