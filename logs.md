@@ -55,10 +55,18 @@ IP: 129.105.86.195
 
 Teros: 0
 
+### Lab Cells 3,4
+
+IP: 129.105.86.194
+
+Teros: 2
+
 
 ### Logs
 
 04-21-2021 - made 2 cells in one tupperware. Cell 1 is made with new felts, Cell 2 has old felts. Soil is from old cell 6 and 7
+
+05-03-2021 - made 2 cells in one tupperware. Cell 3 is made with new felts, Cell 4 has old felts. Soil is from old cell 1 and 4
 
 # Stanford
 
