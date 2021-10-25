@@ -18,7 +18,7 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 if not os.path.exists("soil_data.pkl"):
-    fnames = glob("data/labincubate/rocket3_control/soil*.csv")
+    fnames = glob("data/labincubate/rocket3/soil*.csv")
     soil_data = None
 
     for fname in sorted(fnames, key=lambda x: int(x.split('.')[0].split('_')[-1])):
@@ -66,7 +66,7 @@ ax1.set_ylabel('Cell Voltage (V)')
 ax1.plot(mv.index, mv['voltage1'], color=volt_color1, ls=volt_style1)
 #ax1.plot(mv.index, mv['voltage2'], color=volt_color2, ls=volt_style2)
 ax1.tick_params(axis='y', labelcolor=volt_color1)
-ax1.set_ylim(0, 0.25)
+ax1.set_ylim(0, 0.35)
 
 ax2 = ax1.twinx()
 ax2.set_ylabel('Harvesting Current (μA)')
@@ -86,7 +86,7 @@ ax3.xaxis.set_major_formatter(md.DateFormatter('%m-%d'))
 ax3.set_ylabel("Power (uW)")
 ax3.grid(True)
 print('max power: ',max(max(1E6*data['power1']),max(1E6*data['power2'])))
-ax3.set_ylim(0,200)
+ax3.set_ylim(0,35)
 ax3.plot(mv.index, 1E6*mv['power1'], color=volt_color1, ls = volt_style1)
 #ax3.plot(mv.index, 1E6*mv['power2'], color=volt_color2, ls = volt_style2)
 #ax3.legend(['C','Cu'], loc='upper right', prop={'size': 6})

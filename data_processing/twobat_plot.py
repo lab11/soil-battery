@@ -18,28 +18,30 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 if not os.path.exists("soil_data.pkl"):
-    fnames = glob("data/labincubate/rocket1/soil*.csv")
+    fnames = glob("data/labincubate/rocket4/*_29.csv")
     soil_data = None
 
     for fname in sorted(fnames, key=lambda x: int(x.split('.')[0].split('_')[-1])):
-        print(fname)
-        data = np.genfromtxt(fname, dtype=float, delimiter=',',skip_header=11)
-        data = pd.DataFrame({'timestamp':pd.to_datetime(data[:,0], unit='s'), 'current1':np.abs(data[:,4]*10E-12), 'voltage1':np.abs(data[:,5]*10E-9), 'current2':np.abs(data[:,8]*10E-12), 'voltage2':np.abs(data[:,6]*10E-9)})
-        data.timestamp = data.timestamp.dt.tz_localize('UTC').dt.tz_convert('US/Pacific')
-        data['power1'] = np.abs(np.multiply(data['current1'], data['voltage1']))
-        data['power2'] = np.abs(np.multiply(data['current2'], data['voltage2']))
-        data.set_index('timestamp', inplace=True)
-        print(data)
-        if soil_data is None:
-            soil_data = data
-        else:
-            soil_data = pd.concat([soil_data, data])
-
-    print(soil_data)
+        print("Opening ",fname)
+        try:
+            data = np.genfromtxt(fname, dtype=float, delimiter=',',skip_header=11)
+        except ValueError as e:
+            print(e)
+            data = np.genfromtxt(fname, dtype=float, delimiter=',',skip_header=11, skip_footer=11)
+        if data!=[]:
+            data = pd.DataFrame({'timestamp':pd.to_datetime(data[:,0], unit='s'), 'current1':np.abs(data[:,4]*10E-12), 'voltage1':np.abs(data[:,5]*10E-9), 'current2':np.abs(data[:,8]*10E-12), 'voltage2':np.abs(data[:,6]*10E-9)})
+            data.timestamp = data.timestamp.dt.tz_localize('UTC').dt.tz_convert('US/Pacific')
+            data['power1'] = np.abs(np.multiply(data['current1'], data['voltage1']))
+            data['power2'] = np.abs(np.multiply(data['current2'], data['voltage2']))
+            data.set_index('timestamp', inplace=True)
+            if soil_data is None:
+                soil_data = data
+            else:
+                soil_data = pd.concat([soil_data, data])
     #soil_data.to_pickle("soil_data.pkl");
 else:
     soil_data = pd.read_pickle("soil_data.pkl")
-    print(soil_data)
+
 
 mv = soil_data.rolling(5*60).mean()
 
@@ -66,30 +68,38 @@ ax1.set_ylabel('Cell Voltage (V)')
 ax1.plot(mv.index, mv['voltage1'], color=volt_color1, ls=volt_style1)
 ax1.plot(mv.index, mv['voltage2'], color=volt_color2, ls=volt_style2)
 ax1.tick_params(axis='y', labelcolor=volt_color1)
-ax1.set_ylim(0, 2.5)
+ax1.set_ylim(0, 0.25)
 
 ax2 = ax1.twinx()
-ax2.set_ylabel('Harvesting Current (μA)')
+ax2.set_ylabel('Current (μA)')
 ax2.plot(mv.index, 1E6*mv['current1'], color=amp_color1, ls=amp_style1)
 ax2.plot(mv.index, 1E6*mv['current2'], color=amp_color2, ls=amp_style2)
 ax2.tick_params(axis='y', labelcolor=amp_color1)
-ax2.set_ylim(0,250)
+ax2.set_ylim(0,60)
 ax1.tick_params(axis='x', which='both', length=0)
 ax2.tick_params(axis='x', which='both', length=0)
 
 ax1.grid(True)
-ax1.legend(['C volts','Cu volts'], loc='upper left', prop={'size': 6})
-ax2.legend(['C amps','Cu amps'], loc='upper right' , prop={'size': 6})
+ax1.legend(['C1 volts','C2 volts'], loc='upper left', prop={'size': 6})
+ax2.legend(['C1 amps','C2 amps'], loc='upper right' , prop={'size': 6})
+# Re-arrange legends, ensures data does not draw on top of them
+all_axes = fig.get_axes()
+for axis in all_axes:
+    legend = axis.get_legend()
+    if legend is not None:
+        legend.remove()
+        all_axes[-1].add_artist(legend)
 
 #ax3.fmt_xdata = md.DateFormatter('%m-%d')
 ax3.xaxis.set_major_formatter(md.DateFormatter('%m-%d'))
 ax3.set_ylabel("Power (uW)")
 ax3.grid(True)
 print('max power: ',max(max(1E6*data['power1']),max(1E6*data['power2'])))
-ax3.set_ylim(0,200)
+ax3.set_ylim(0,5)
 ax3.plot(mv.index, 1E6*mv['power1'], color=volt_color1, ls = volt_style1)
 ax3.plot(mv.index, 1E6*mv['power2'], color=volt_color2, ls = volt_style2)
-ax3.legend(['C','Cu'], loc='upper right', prop={'size': 6})
+ax3.legend(['Cell 1','Cell 2'], loc='upper right', prop={'size': 6})
+#ax3.legend(['Cell 1','Cell 2'], loc='upper left', prop={'size': 6})
 ax3.tick_params(axis='x', labelsize=6, rotation=0)
 #ax3.set_xlim(mv.index[0], datetime.date(2020,5,19))
 for label in ax3.get_xticklabels():
