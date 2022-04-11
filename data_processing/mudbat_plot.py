@@ -15,12 +15,14 @@ from glob import glob
 import arrow
 import os
 
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
 if not os.path.exists("mudbat_data.pkl"):
     fnames = glob("data/carbon-carbon/mudbat*.csv")
     mudbat_data = None
 
     for fname in sorted(fnames, key=lambda x: int(x.split('.')[0].split('_')[-1])):
-        print(fname)
         data = np.genfromtxt(fname, dtype=float, delimiter=',',skip_header=11)
         if '3' in fname:
             data = pd.DataFrame({'timestamp':pd.to_datetime(data[:,0], unit='s'), 'current':data[:,3]*-10E-12, 'voltage':data[:,4]*-10E-9})
@@ -30,8 +32,6 @@ if not os.path.exists("mudbat_data.pkl"):
         if '3' in fname:
             start = data['timestamp'][0]
         data['power'] = np.abs(np.multiply(data['current'], data['voltage']))
-        data.set_index('timestamp', inplace=True)
-        print(data)
         if mudbat_data is None:
             mudbat_data = data
         else:
@@ -41,56 +41,39 @@ if not os.path.exists("mudbat_data.pkl"):
 else:
     mudbat_data = pd.read_pickle("mudbat_data.pkl")
 
-print(mudbat_data)
+mudbat_data.iloc[:, 1:4] = mudbat_data.iloc[:, 1:4].rolling(5*60).mean()
 
-mv = mudbat_data.rolling(5*60).mean()
-plt.xlabel("Time")
-fig, (ax1, ax3) = plt.subplots(2,figsize=(4,2), sharex=True)
-fig.autofmt_xdate()
+ind = mudbat_data['timestamp'] > start
+mudbat_data = mudbat_data[ind]
 
-ind = mv.index > start
-mv = mv[ind]
 
-volt_color= 'tab:blue'
-volt_style = 'solid'
-amp_color = 'tab:red'
-amp_style='dashed'
-ax1.set_ylabel('Cell Voltage (V)')
-ax1.plot(mv.index, mv['voltage'], color=volt_color, ls=volt_style)
-ax1.tick_params(axis='y', labelcolor=volt_color)
-ax1.set_ylim(0, .05)
+def mudbat_plot():
+        fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.1,
+                            specs=[[{"secondary_y": True}], [{"secondary_y":False}]],
+                            )
 
-ax2 = ax1.twinx()
-ax2.set_ylabel('Harvesting Current (μA)')
-ax2.plot(mv.index, -1E6*mv['current'], color=amp_color, ls=amp_style)
-ax2.tick_params(axis='y', labelcolor=amp_color)
-ax2.set_ylim(0,50)
-ax1.tick_params(axis='x', which='both', length=0)
-ax2.tick_params(axis='x', which='both', length=0)
+        fig.add_trace(
+                go.Scatter(x=mudbat_data['timestamp'], y=mudbat_data['voltage'], mode='lines', name='voltage'),
+                row=1, col=1,
+                secondary_y=False
+        )
+        fig.add_trace(
+                go.Scatter(x=mudbat_data['timestamp'], y=mudbat_data['current'], mode='lines', name='current'),
+                row=1, col=1,
+                secondary_y=True
+        )
+        fig.add_trace(
+                go.Scatter(x=mudbat_data['timestamp'], y=mudbat_data['power'], mode='lines', showlegend=False),
+                row=2, col=1
+        )
 
-ax1.grid(True)
-ax1.legend(['voltage'], loc='upper left' , prop={'size':6})
-ax2.legend(['current'], loc='lower right', prop={'size':6})
-
-#ax3.fmt_xdata = md.DateFormatter('%d %h:%m')
-ax3.xaxis.set_major_formatter(md.DateFormatter('%m-%d'))
-ax3.set_ylabel("Power (uW)")
-ax3.grid(True)
-ax3.plot(mv.index, 1E6*mv['power'])
-ax3.tick_params(axis='x', labelsize=6, rotation=0)
-for label in ax3.get_xticklabels():
-    label.set_horizontalalignment('center')
-ax3.set_xlim(mv.index[0], datetime.date(2020,5,27))
-ax3.set_ylim(0,1)
-
-plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=0.5)
-plt.subplots_adjust(hspace=0.15)
-#plt.show()
-plt.savefig('c-c_battery.pdf')
-#plt.savefig('soil.png', dpi=180)
-tot_energy = np.trapz(mudbat_data['power'])
-print(tot_energy)
-print(mudbat_data)
-after_spike = mudbat_data['power'][60*60*24*5:]
-print(np.average(after_spike), np.std(after_spike))
-print((mudbat_data.tail(1).index - mudbat_data.head(1).index).total_seconds())
+        fig.update_xaxes(title={'text':"Impedance (Ω)"}, row=2, col=1)
+        fig.update_yaxes(title={'text':"Cell Voltage (mV)", 'standoff':5}, row=1,col=1, secondary_y=False)
+        fig.update_yaxes(title={'text':"Harvesting Current (μA)"}, row=1,col=1, secondary_y=True)
+        fig.update_yaxes(title={'text':"Power (uW)", 'standoff':5}, row=2, col=1)
+        fig.update_layout(height=500, width=700, title="Mudbat Subplots",template='plotly_dark', 
+                          paper_bgcolor="#121212", plot_bgcolor="#121212",
+                          legend={'orientation':'h', 'xanchor':'right', 'yanchor': 'bottom', 'y':1.02, 'x':1}
+                          )
+        
+        return fig
