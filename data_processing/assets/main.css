@@ -1,14 +1,11 @@
 body{
-    background-color: #635e55;
-    color:cornsilk;
     font-family: 'Courier New', Courier, monospace;
+    background-color: #0d0c0c;
+    color:#FFFDE7;
 }
 
 Main{
-    margin: 3% 4%;
-    background-color: #403936;
-    border-radius: 10px;
-    padding: 0.4% 2%;
+    margin: 1% 1%;
 }
 
 .flex{
@@ -20,9 +17,12 @@ Main{
 }
 
 .flexItem{
-    background-color: chocolate;
+    background-color: #121212;
     flex-basis: auto;
-    margin: 2% 2%;
+    margin: 0.7% 0.7%;
+    padding: 5px 5px;
+    box-shadow: 3px 3px 10px rgb(0 0 0 / 0.2);
+    border-radius: 10px;
 }
 
 #graph1{
@@ -46,6 +46,6 @@ Main{
 }
 
 #graph5{
-    width: 200px;
-    height: 400px;
+    width: 300px;
+    height: 500px;
 }
