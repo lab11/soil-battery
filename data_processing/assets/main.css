@@ -1,0 +1,51 @@
+body{
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #0d0c0c;
+    color:#FFFDE7;
+}
+
+Main{
+    margin: 1% 1%;
+}
+
+.flex{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-end;
+}
+
+.flexItem{
+    background-color: #121212;
+    flex-basis: auto;
+    margin: 0.7% 0.7%;
+    padding: 5px 5px;
+    box-shadow: 3px 3px 10px rgb(0 0 0 / 0.2);
+    border-radius: 10px;
+}
+
+#graph1{
+    width: 700px;
+    height: 400px;
+}
+
+#graph2{
+    width: 1000px;
+    height: 400px;
+}
+
+#graph3{
+    width: 700px;
+    height: 500px;
+}
+
+#graph4{
+    width: 400px;
+    height: 300px;
+}
+
+#graph5{
+    width: 300px;
+    height: 500px;
+}
